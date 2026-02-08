@@ -12,6 +12,8 @@ npm install
 npm run dev
 ```
 
+This project now uses `react-markdown` and `remark-gfm` to render Markdown previews. After adding dependencies, run `npm install` to fetch them.
+
 The app is a small single-page interface located under `src/` — `App.tsx` contains the main UI components.
 
 ## Build

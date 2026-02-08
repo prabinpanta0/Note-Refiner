@@ -1,5 +1,7 @@
 import { ArrowRight, Check, Copy, Loader2, Moon, Sun, Trash2 } from "lucide-react";
 import { useEffect, useRef, useState, type KeyboardEvent } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 function App() {
     const [input, setInput] = useState("");
@@ -7,6 +9,7 @@ function App() {
     const [loading, setLoading] = useState(false);
     const [copied, setCopied] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [renderMarkdown, setRenderMarkdown] = useState<boolean>(true);
     const [healthOk, setHealthOk] = useState<boolean>(false);
     const [healthLoading, setHealthLoading] = useState<boolean>(true);
     const [theme, setTheme] = useState<"light" | "dark">(() =>
@@ -297,24 +300,35 @@ function App() {
                             <label className="text-xs font-medium uppercase tracking-[0.15em] text-muted-foreground">
                                 Output
                             </label>
-                            {output && (
-                                <button
-                                    onClick={handleCopy}
-                                    className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                                >
-                                    {copied ? (
-                                        <>
-                                            <Check size={12} />
-                                            Copied
-                                        </>
-                                    ) : (
-                                        <>
-                                            <Copy size={12} />
-                                            Copy
-                                        </>
-                                    )}
-                                </button>
-                            )}
+                            <div className="flex items-center gap-3">
+                                <label className="flex items-center gap-2 text-xs text-muted-foreground">
+                                    <input
+                                        type="checkbox"
+                                        checked={renderMarkdown}
+                                        onChange={() => setRenderMarkdown(r => !r)}
+                                        className="w-4 h-4"
+                                    />
+                                    Render Markdown
+                                </label>
+                                {output && (
+                                    <button
+                                        onClick={handleCopy}
+                                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                                    >
+                                        {copied ? (
+                                            <>
+                                                <Check size={12} />
+                                                Copied
+                                            </>
+                                        ) : (
+                                            <>
+                                                <Copy size={12} />
+                                                Copy
+                                            </>
+                                        )}
+                                    </button>
+                                )}
+                            </div>
                         </div>
                         {error && (
                             <div className="mb-4 p-3 rounded border border-red-200 bg-red-50 text-red-800">{error}</div>
@@ -322,14 +336,20 @@ function App() {
 
                         <div
                             ref={outputRef}
-                            className="w-full bg-card border border-border rounded-lg p-5 min-h-50 font-mono text-sm leading-relaxed"
+                            className="w-full bg-card border border-border rounded-lg p-5 min-h-50 text-sm leading-relaxed"
                         >
                             {loading ? (
                                 <div className="flex items-center gap-2 text-muted-foreground">
                                     <span className="inline-block w-1 h-4 bg-muted-foreground animate-pulse" />
                                 </div>
                             ) : output ? (
-                                <pre className="whitespace-pre-wrap text-foreground">{output}</pre>
+                                renderMarkdown ? (
+                                    <div className="markdown-body text-foreground">
+                                        <ReactMarkdown remarkPlugins={[remarkGfm]}>{output}</ReactMarkdown>
+                                    </div>
+                                ) : (
+                                    <pre className="whitespace-pre-wrap text-foreground font-mono">{output}</pre>
+                                )
                             ) : (
                                 <span className="text-muted-foreground/50">Refined output will appear here...</span>
                             )}
